@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Weather App</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="form-card">
+            <h1>🌤️ Sign Up</h1>
+            <p class="subtitle">Create your account</p>
+            
+            <div th:if="${error}" class="alert alert-error">
+                <span th:text="${error}"></span>
+            </div>
+            
+            <form th:action="@{/signup}" method="post">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required 
+                           minlength="3" maxlength="50">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required 
+                           minlength="6">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+            </form>
+            
+            <p class="link-text">
+                Already have an account? 
+                <a th:href="@{/login}">Login here</a>
+            </p>
+            
+            <p class="link-text">
+                <a th:href="@{/}">← Back to Home</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App - Home</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>🌤️ Weather App</h1>
+            <p class="tagline">Get real-time weather information for cities worldwide</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <span class="icon">🔐</span>
+                    <h3>Secure Authentication</h3>
+                    <p>JWT-based secure login</p>
+                </div>
+                <div class="feature">
+                    <span class="icon">🌍</span>
+                    <h3>Global Weather Data</h3>
+                    <p>Real-time data from WeatherAPI.com</p>
+                </div>
+                <div class="feature">
+                    <span class="icon">👥</span>
+                    <h3>Role-Based Access</h3>
+                    <p>User and Admin roles</p>
+                </div>
+            </div>
+            
+            <div class="cta-buttons">
+                <a th:href="@{/login}" class="btn btn-primary">Login</a>
+                <a th:href="@{/signup}" class="btn btn-secondary">Sign Up</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
