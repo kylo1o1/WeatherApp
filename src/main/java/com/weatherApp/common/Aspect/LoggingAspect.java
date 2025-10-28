@@ -1,6 +1,5 @@
 package com.weatherApp.common.Aspect;
 
-import java.util.Arrays;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -8,7 +7,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
-import com.weatherApp.common.Aspect.util.LogSanitize;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,19 +67,22 @@ public class LoggingAspect {
 		String className = joinPoint.getTarget().getClass().getSimpleName();
 		Object [] args  = joinPoint.getArgs(); 
 	
-		
+		long startTime = System.currentTimeMillis();
 		log.info("[ USECASE ] - Entering usecase method : {}.{}() ",
 				className,
 				methodName
 				);
 		
 		try {
+			
+			
 			Object result = joinPoint.proceed();
 			
-			log.info("[ USECASE ] - Exiting useCase Method : {}.{}()",
+			long executionTime = System.currentTimeMillis() - startTime;
+			log.info("[ USECASE ] - Exiting useCase Method : {}.{}(), executed method in {} ms",
 					className,
-					methodName
-					
+					methodName,
+					executionTime
 					);
 			
 			return result;

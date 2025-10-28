@@ -72,5 +72,34 @@ public class CustomExceptions {
 			super(message);
 		}
 	}
+	
+	public static class InvalidPasswordException extends RuntimeException{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		public InvalidPasswordException(String message) {
+		
+			super(message);
+		}
+		
+		
+	}
+	
+	public static class InvalidCityException extends RuntimeException{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		
+		public InvalidCityException(String message) {
+			
+			super(message);
+		}
+	}
 }
 	

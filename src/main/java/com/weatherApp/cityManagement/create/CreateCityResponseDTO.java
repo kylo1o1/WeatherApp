@@ -15,9 +15,6 @@ public class CreateCityResponseDTO {
 	private String cityName;
 	private String country;
 	private String countryCode;
-	private String timeZone;
-	private Double longitude;
-	private Double latitude;
 	
 	private String message;
 

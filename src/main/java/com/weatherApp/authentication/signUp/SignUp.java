@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 import com.weatherApp.authentication.User;
 import com.weatherApp.authentication.UserRepo;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.DuplicateUsernameException;
+import com.weatherApp.common.exceptionHandling.CustomExceptions.InvalidPasswordException;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.MissingDataException;
 import com.weatherApp.security.Role;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,11 +24,8 @@ public class SignUp {
 	private final  PasswordEncoder passwordEncoder;
 	
 	
-	public Response execute(Request request) {
+	public Response execute(@Valid Request request) {
 		
-		if(!request.isValid()) {
-			throw new MissingDataException("User Details are incomplete");
-		}
 		
 		if(userRepo.findByUsername(request.getUsername()).isPresent()) {
 			
@@ -56,9 +55,6 @@ public class SignUp {
 	
 	public Response executeAsAdmin(Request request) {
 		
-		if(!request.isValid()) {
-			throw new MissingDataException("User Details are incomplete");
-		}
 		
 		if(userRepo.findByUsername(request.getUsername()).isPresent()) {
 			

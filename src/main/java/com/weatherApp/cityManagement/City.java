@@ -26,9 +26,6 @@ public class City {
 	private String name;
 	private String country;
 	private String countryCode;
-	private String timeZone;
-	private Double latitude;
-	private Double longitude;
 	
 	
 	

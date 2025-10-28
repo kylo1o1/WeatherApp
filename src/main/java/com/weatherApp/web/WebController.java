@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,18 +15,20 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.weatherApp.authentication.login.Login;
 import com.weatherApp.authentication.login.LoginRequestDTO;
 import com.weatherApp.authentication.login.LoginResponseDTO;
+import com.weatherApp.authentication.signUp.Request;
+import com.weatherApp.authentication.signUp.SignUp;
 import com.weatherApp.cityManagement.create.CreateCity;
 import com.weatherApp.cityManagement.create.CreateCityRequestDTO;
 import com.weatherApp.cityManagement.create.CreateCityResponseDTO;
 import com.weatherApp.cityManagement.delete.RemoveCity;
 import com.weatherApp.cityManagement.retrieve.CityResponseDTO;
 import com.weatherApp.cityManagement.retrieve.GetCities;
-import com.weatherApp.common.config.ApplicationConfig;
 import com.weatherApp.weatherFetching.FetchWeatherForCity;
 import com.weatherApp.weatherFetching.DTO.WeatherRequestDTO;
 import com.weatherApp.weatherFetching.DTO.WeatherResponseDTO;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WebController {
 
-	
+	private final SignUp signUpUseCase;
 	private final Login loginUseCase;
 	
 	private final GetCities citiesUseCase;
@@ -55,22 +59,21 @@ public class WebController {
 
 	@PostMapping("/login")
 	public String handleLogin(
-			@RequestParam String username,
-			@RequestParam String password,
+			LoginRequestDTO request,
 			HttpSession session,
 			RedirectAttributes redirectAttributes
 			) {
 		
 		try {
 			
-			LoginRequestDTO request = new LoginRequestDTO(username,password);
+			
 			LoginResponseDTO response = loginUseCase.execute(request);
 			
 			session.setAttribute("token", response.getToken());
 			session.setAttribute("username", response.getUsername());
 			session.setAttribute("role", response.getRole());
 			
-			log.info("User {} logged in successfully" , username);
+			log.info("User {} logged in successfully" , request.getUsername());
 			
 			if("ADMIN".equals(response.getRole())) {
 				return "redirect:/admin";
@@ -80,7 +83,7 @@ public class WebController {
 			
 			
 		} catch (Exception e) {
-			log.error("Login failed for user {} : {}" , username,e.getMessage());
+			log.error("Login failed for user {} : {}" , request.getUsername(),e.getMessage());
 			redirectAttributes.addFlashAttribute("error",e.getMessage());
 			return "redirect:/login";
 		}
@@ -92,19 +95,48 @@ public class WebController {
 		return "signUp";
 	}
 
+	@PostMapping("/signup")
+	public String handleSignUp(
+			@Valid @ModelAttribute Request request, 
+			BindingResult result,
+			RedirectAttributes redirectAttributes
+			
+			) {
+		
+		 if (result.hasErrors()) {
+		        redirectAttributes.addFlashAttribute("error", result.getAllErrors().get(0).getDefaultMessage());
+		        return "redirect:/signup";
+		    }
+		try {
+			
+			
+			signUpUseCase.execute(request);
+			
+			redirectAttributes.addFlashAttribute("Success", "User Registered succesfully");
+			
+			
+			return "redirect:/login";
+		} catch (Exception e) {
+			
+			redirectAttributes.addFlashAttribute("error", e.getMessage());
+			return "redirect:/signup";
+		}
+		
+	}
+	
 	 @GetMapping("/dashboard")
     public String showDashboard(HttpSession session, Model model) {
         
-		 log.info("=>>>>>>>{}", session.getAttribute("username"));
+		
         if (session.getAttribute("username") == null) {
             return "redirect:/login";
         }
         
-        // Add user info to model (accessible in template)
+        
         model.addAttribute("username", session.getAttribute("username"));
         model.addAttribute("role", session.getAttribute("role"));
         
-        // Get all cities
+       
         try {
             CityResponseDTO response = citiesUseCase.execute();
             model.addAttribute("cities", response.getCities());
@@ -175,11 +207,6 @@ public class WebController {
 			 CityResponseDTO  cities = citiesUseCase.execute();
 			 model.addAttribute("cities", cities.getCities());
 			 
-			 List<String> cocodes = cities.getCities().stream()
-					 .map(t->t.getCountryCode())
-					 .toList();
-			  
-			 log.info("Country codes -> {}",cocodes );
 		} catch (Exception e) {
 			 log.error("Error loading cities: {}", e.getMessage());
 	         model.addAttribute("error", "Failed to load cities");
@@ -189,12 +216,8 @@ public class WebController {
 	 }
 	 @PostMapping("/admin/add-city")
 	 public String addCity(
-			 @RequestParam String name,
-			 @RequestParam String country,
-			 @RequestParam String countryCode,
-			 @RequestParam String timeZone,
-			 @RequestParam Double latitude,
-			 @RequestParam Double longitude,
+			 @Valid @ModelAttribute CreateCityRequestDTO request,
+			 BindingResult result,
 			 HttpSession session,
 			 Model model,
 			 RedirectAttributes redirectAttributes
@@ -204,25 +227,20 @@ public class WebController {
 		 if(!session.getAttribute("role").equals("ADMIN")) {
 			 return "redirect:/login";
 		 }
+		 if (result.hasErrors()) {
+		        redirectAttributes.addFlashAttribute("error", result.getAllErrors().get(0).getDefaultMessage());
+		        return "redirect:/signup";
+		    }
 		 
 		 try {
 			
-			 CreateCityRequestDTO request = new CreateCityRequestDTO(
-					 name,
-					 country,
-					 countryCode,
-					 timeZone,
-					 latitude,
-					 longitude
-					 );
+			
 			 
 			 
-			 CreateCityResponseDTO cityResponseDTO = createCity.execute(request);
-			 
-			 
+			  createCity.execute(request);
 			 
 			 redirectAttributes.addFlashAttribute("success",
-					 "City " + name + " added Successfulyy"
+					 "City " + request.getName() + " added Successfulyy"
 					 );
 			 
 			 return "redirect:/admin";

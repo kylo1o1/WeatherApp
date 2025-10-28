@@ -1,5 +1,6 @@
 package com.weatherApp.cityManagement.create;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -10,18 +11,14 @@ import lombok.RequiredArgsConstructor;
 public class CreateCityRequestDTO {
 
 	
+	@NotBlank(message = "City name is required")
 	private String name;
+
+	@NotBlank(message = "Country is required")
 	private String country;
-	private String countryCode;
-	private String timeZone;
-	private Double latitude;
-	private Double longitude;
 	
-	public boolean isValid() {
-        return name != null && !name.trim().isEmpty() 
-            && country != null && !country.trim().isEmpty()
-           
-            && timeZone != null && latitude != null
-            && longitude != null && countryCode !=null;
-    }
+	@NotBlank(message = "Country code is required")
+	private String countryCode;
+	
+	
 }

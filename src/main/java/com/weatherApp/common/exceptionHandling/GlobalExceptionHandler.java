@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
@@ -15,6 +16,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.CityNotFoundException;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.DuplicateCityException;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.DuplicateUsernameException;
+import com.weatherApp.common.exceptionHandling.CustomExceptions.InvalidCityException;
+import com.weatherApp.common.exceptionHandling.CustomExceptions.InvalidPasswordException;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.MissingDataException;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.WeatherApiException;
 
@@ -42,6 +45,36 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse,status);
 		
 		
+	}
+	
+	
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<?> handleValidationErrors(MethodArgumentNotValidException ex){
+		
+		Map<String, Object> errorResponse = new HashMap<>(); 
+		
+		Map<String, Object> fieldErrors = new HashMap<>();
+		ex.getBindingResult().getFieldErrors().forEach(error ->
+					fieldErrors.put(error.getField(), error.getDefaultMessage())
+				);
+		
+		errorResponse.put("timeStamp", LocalDateTime.now().toString());	
+		errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
+		errorResponse.put("error", HttpStatus.BAD_REQUEST.getReasonPhrase());
+		errorResponse.put("message", "Validation Failed");
+		errorResponse.put("Details", fieldErrors);
+		
+		return ResponseEntity
+				.status(HttpStatus.BAD_REQUEST)
+				.body(errorResponse);
+		
+		
+	}
+	
+	@ExceptionHandler(InvalidCityException.class)
+	public ResponseEntity<?> handleInvalidCityErros(InvalidCityException ex){
+		
+		return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(HttpClientErrorException.class)
@@ -103,6 +136,12 @@ public class GlobalExceptionHandler {
 		return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
 		
 		
+	}
+	
+	@ExceptionHandler(InvalidPasswordException.class)
+	public ResponseEntity<?> handleInvalidPassword(RuntimeException ex){
+		
+		return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(Exception.class)

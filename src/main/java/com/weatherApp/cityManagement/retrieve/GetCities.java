@@ -29,10 +29,8 @@ public class GetCities {
 						city.getId(), 
 						city.getName(), 
 						city.getCountry(), 
-						city.getCountryCode(), 
-						city.getTimeZone(),  
-						city.getLongitude(),
-						city.getLatitude()
+						city.getCountryCode()
+
 						))
 				.toList();
 		
@@ -61,9 +59,7 @@ public class GetCities {
 		cityInfoDTO.setName(city.getName()); 
 		cityInfoDTO.setCountry(city.getCountry()); 
 		cityInfoDTO.setCountryCode(city.getCountryCode());
-		cityInfoDTO.setTimeZone(city.getTimeZone());
-		cityInfoDTO.setLongitude(city.getLongitude());
-		cityInfoDTO.setLatitude(city.getLongitude());
+		
 		
 		return cityInfoDTO;
 		
@@ -79,10 +75,7 @@ public class GetCities {
 						city.getId(),
 						city.getName(),
 						city.getCountry(),
-						city.getCountryCode(),
-						city.getTimeZone(),
-						city.getLongitude(),
-						city.getLatitude()
+						city.getCountryCode()
 						)
 						)
 				.toList();

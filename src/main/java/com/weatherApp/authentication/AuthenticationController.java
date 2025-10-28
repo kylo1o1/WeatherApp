@@ -15,6 +15,8 @@ import com.weatherApp.authentication.signUp.Request;
 import com.weatherApp.authentication.signUp.Response;
 import com.weatherApp.authentication.signUp.SignUp;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
@@ -38,7 +40,7 @@ public class AuthenticationController {
 	}
 	
 	@PostMapping("/signUp")
-	public ResponseEntity<?> signUp(@RequestBody Request request){
+	public ResponseEntity<?> signUp(@Valid @RequestBody Request request){
 		
 			Response response = signUpUseCase.execute(request);
 			

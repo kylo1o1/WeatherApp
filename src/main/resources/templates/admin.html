@@ -29,83 +29,57 @@
             <span th:text="${error}"></span>
         </div>
         
-        <!-- Add City Form -->
-       <div class="form-card">
-    <h2>Add New City</h2>
-    <form th:action="@{/admin/add-city}" method="post">
-        <div class="form-row">
+        <div class="form-card">
+            <h2>Add New City</h2>
+            <form th:action="@{/admin/add-city}" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cityName">City Name</label>
+                        <input type="text" id="cityName" name="name" required placeholder="Mumbai">
+                    </div>
 
-            <div class="form-group">
-                <label for="cityName">City Name</label>
-                <input type="text" id="cityName" name="name" required>
-            </div>
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <input type="text" id="country" name="country" required placeholder="India">
+                    </div>
 
-            <div class="form-group">
-                <label for="country">Country</label>
-                <input type="text" id="country" name="country" required placeholder="India">
-            </div>
+                    <div class="form-group">
+                        <label for="countryCode">Country Code</label>
+                        <input type="text" id="countryCode" name="countryCode" required maxlength="2" placeholder="IN">
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <label for="countryCode">Country Code</label>
-                <input type="text" id="countryCode" name="countryCode" required maxlength="2" placeholder="IN">
-            </div>
-
-        </div>
-
-        <div class="form-row">
-
-            <div class="form-group">
-                <label for="timeZone">Time Zone</label>
-                <input type="text" id="timeZone" name="timeZone" required placeholder="Asia/Kolkata">
-            </div>
-
-            <div class="form-group">
-                <label for="latitude">Latitude</label>
-                <input type="number" id="latitude" name="latitude" step="0.0001" required placeholder="19.0760">
-            </div>
-
-            <div class="form-group">
-                <label for="longitude">Longitude</label>
-                <input type="number" id="longitude" name="longitude" step="0.0001" required placeholder="72.8777">
-            </div>
-
-        </div>
-
-        <button type="submit" class="btn btn-primary">Add City</button>
-    </form>
-</div>
-
-        
-       <div class="cities-section">
-    <h2>Manage Cities</h2>
-    <div class="cities-grid">
-        <div th:each="city : ${cities}" class="city-card">
-            <div class="city-info">
-                <h3 th:text="${city.name}"></h3>
-                <p><strong>Country:</strong> <span th:text="${city.country}"></span> (<span th:text="${city.countryCode}"></span>)</p>
-                <p><strong>Time Zone:</strong> <span th:text="${city.timeZone}"></span></p>
-                <p>
-                    <strong>Coords:</strong> 
-                    <span th:text="${city.latitude}"></span>, 
-                    <span th:text="${city.longitude}"></span>
-                </p>
-            </div>
-
-            <form th:action="@{/admin/remove-city}" method="post" class="delete-form">
-                <input type="hidden" name="cityId" th:value="${city.id}">
-                <button type="submit" class="btn btn-danger btn-small"
-                        onclick="return confirm('Remove this city?')">
-                    Delete
-                </button>
+                <button type="submit" class="btn btn-primary">Add City</button>
             </form>
         </div>
-    </div>
 
-    <div th:if="${#lists.isEmpty(cities)}" class="empty-state">
-        <p>No cities added yet. Add your first city above!</p>
-    </div>
-</div>
+        <div class="cities-section">
+            <h2>Manage Cities</h2>
+            <div class="cities-grid">
+                <div th:each="city : ${cities}" class="city-card">
+                    <div class="city-info">
+                        <h3 th:text="${city.name}"></h3>
+                        <p>
+                            <strong>Country:</strong>
+                            <span th:text="${city.country}"></span> 
+                            (<span th:text="${city.countryCode}"></span>)
+                        </p>
+                    </div>
 
+                    <form th:action="@{/admin/remove-city}" method="post" class="delete-form">
+                        <input type="hidden" name="cityId" th:value="${city.id}">
+                        <button type="submit" class="btn btn-danger btn-small"
+                                onclick="return confirm('Remove this city?')">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(cities)}" class="empty-state">
+                <p>No cities added yet. Add your first city above!</p>
+            </div>
+        </div>
     </div>
 </body>
 </html>

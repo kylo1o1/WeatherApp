@@ -51,8 +51,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			if(sessionToken != null) {
 				
 				token = sessionToken.toString();
-			}else {
-				log.info("NO token Found");
 			}
 		}
 		

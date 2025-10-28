@@ -15,8 +15,6 @@ public class CityInfoDTO {
 	private String name;
 	private String country;
 	private String countryCode;
-	private String timeZone;
-	private Double longitude;
-	private Double latitude;
+	
 	
 }

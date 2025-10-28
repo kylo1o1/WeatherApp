@@ -26,6 +26,7 @@ import com.weatherApp.common.exceptionHandling.CustomExceptions.CityNotFoundExce
 import com.weatherApp.common.exceptionHandling.CustomExceptions.DuplicateCityException;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.MissingDataException;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
@@ -80,7 +81,7 @@ public class CityController {
 	
 	@PostMapping("/addCity")
 	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> addCity(@RequestBody CreateCityRequestDTO cityRequestDTO){
+	public ResponseEntity<?> addCity( @RequestBody  @Valid CreateCityRequestDTO cityRequestDTO){
 		
 	
 			

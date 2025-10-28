@@ -2,6 +2,7 @@ package com.weatherApp.weatherFetching;
 
 import org.springframework.stereotype.Service;
 
+import com.weatherApp.api.ApiClient;
 import com.weatherApp.cityManagement.CityRepo;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.CityNotFoundException;
 import com.weatherApp.weatherFetching.DTO.WeatherRequestDTO;
@@ -14,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class FetchWeatherForCity {
 
 	private final CityRepo cityRepo;
-	private final WeatherClient weatherClient;
+	private final ApiClient apiClient;
 	
 	
 	public WeatherResponseDTO execute(WeatherRequestDTO request) throws Exception {
@@ -33,7 +34,7 @@ public class FetchWeatherForCity {
 					);
 		}
 		
-		WeatherData weatherData = weatherClient.fetchWeather(cityName);
+		WeatherData weatherData = apiClient.fetchWeather(cityName);
 		
 		return mapData(weatherData);
 		
