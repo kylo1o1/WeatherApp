@@ -9,43 +9,44 @@
 <body>
     <div class="container">
         <div class="form-card">
-            <h1>🌤️ Sign Up</h1>
-            <p class="subtitle">Create your account</p>
+            <h1>🌤️ Admin Sign Up</h1>
+            <p class="subtitle">Create Admin account</p>
             
             <div th:if="${error}" class="alert alert-error">
                 <span th:text="${error}"></span>
             </div>
             
-            <form th:action="@{/signup}" method="post">
+            <form th:action="@{/signup/admin}" th:object="${request}" method="post">
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required 
+                    <input th:field="*{user.username}" type="text" id="username" name="username" required 
                            minlength="3" maxlength="50">
                 </div>
                 
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
+                    <input th:field="*{user.email}" type="email" id="email" name="email" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required 
+                    <input th:field="*{user.password}" type="password" id="password" name="password" required 
                            minlength="5">
                 </div>
+				<div class="form-group">
+				                    <label for="secretKey">Admin key</label>
+				                    <input th:field="*{secretKey}" type="password" id="secretKey" name="secretKey" required 
+				                     >
+				                </div>
                 
                 <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
             </form>
             
             <p class="link-text">
-                Already have an account? 
-                <a th:href="@{/login}">Login here</a>
+                Register as a User?
+                <a th:href="@{/signup}">Sign Up here</a>
             </p>
             
-			<p class="link-text">
-			                Sign Up as Admin?
-			                <a th:href="@{/signup/admin}">Register  here</a>
-			            </p>
             <p class="link-text">
                 <a th:href="@{/}">← Back to Home</a>
             </p>

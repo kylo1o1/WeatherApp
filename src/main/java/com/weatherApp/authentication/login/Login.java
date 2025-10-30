@@ -22,9 +22,7 @@ public class Login {
 	private final JwtTokenProvider jwtTokenProvider;
 	
 	public LoginResponseDTO execute(LoginRequestDTO requestDTO) {
-		if(!requestDTO.isValid()) {
-			throw new MissingDataException("Incomplete Credentials");
-		}
+		
 		
 		User user = userRepo.findByUsername(requestDTO.getUsername())
 				.orElseThrow(() -> new BadCredentialsException("Invalid Username or password"));

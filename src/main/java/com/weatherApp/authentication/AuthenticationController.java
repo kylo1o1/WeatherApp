@@ -6,11 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.weatherApp.authentication.login.Login;
 import com.weatherApp.authentication.login.LoginRequestDTO;
 import com.weatherApp.authentication.login.LoginResponseDTO;
+import com.weatherApp.authentication.signUp.AdminRequest;
 import com.weatherApp.authentication.signUp.Request;
 import com.weatherApp.authentication.signUp.Response;
 import com.weatherApp.authentication.signUp.SignUp;
@@ -30,7 +32,7 @@ public class AuthenticationController {
 	
 	
 	@PostMapping("/login")
-	public  ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequestDTO){
+	public  ResponseEntity<?> login(@RequestBody @Valid LoginRequestDTO loginRequestDTO){
 		
 			
 			LoginResponseDTO response = loginUseCase.execute(loginRequestDTO);
@@ -50,7 +52,7 @@ public class AuthenticationController {
 	}
 	
 	@PostMapping("/signUp/admin")
-	public ResponseEntity<?> signUpForAdmin(@RequestBody Request request){
+	public ResponseEntity<?> signUpForAdmin(@Valid @RequestBody AdminRequest request){
 	
 			Response response = signUpUseCase.executeAsAdmin(request);
 			

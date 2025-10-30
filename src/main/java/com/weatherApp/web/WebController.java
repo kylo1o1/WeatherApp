@@ -1,6 +1,5 @@
 package com.weatherApp.web;
 
-import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,18 +7,17 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.weatherApp.authentication.login.Login;
 import com.weatherApp.authentication.login.LoginRequestDTO;
 import com.weatherApp.authentication.login.LoginResponseDTO;
+import com.weatherApp.authentication.signUp.AdminRequest;
 import com.weatherApp.authentication.signUp.Request;
 import com.weatherApp.authentication.signUp.SignUp;
 import com.weatherApp.cityManagement.create.CreateCity;
 import com.weatherApp.cityManagement.create.CreateCityRequestDTO;
-import com.weatherApp.cityManagement.create.CreateCityResponseDTO;
 import com.weatherApp.cityManagement.delete.RemoveCity;
 import com.weatherApp.cityManagement.retrieve.CityResponseDTO;
 import com.weatherApp.cityManagement.retrieve.GetCities;
@@ -59,10 +57,15 @@ public class WebController {
 
 	@PostMapping("/login")
 	public String handleLogin(
-			LoginRequestDTO request,
+			@Valid @ModelAttribute LoginRequestDTO request,
+			BindingResult result,
 			HttpSession session,
 			RedirectAttributes redirectAttributes
 			) {
+		
+		if(result.hasErrors()) {
+			redirectAttributes.addFlashAttribute("error", result.getAllErrors().get(0).getDefaultMessage());
+		}
 		
 		try {
 			
@@ -94,6 +97,7 @@ public class WebController {
 	public String showSignUp() {
 		return "signUp";
 	}
+	
 
 	@PostMapping("/signup")
 	public String handleSignUp(
@@ -121,6 +125,42 @@ public class WebController {
 			redirectAttributes.addFlashAttribute("error", e.getMessage());
 			return "redirect:/signup";
 		}
+		
+	}
+	
+	@GetMapping("/signup/admin")
+	public String showAdminSignUp(Model model) {
+		
+		if(!model.containsAttribute("request")) {
+			model.addAttribute("request", new AdminRequest(new Request(),""));
+		}
+		
+		return "AdminSignUp";
+	}
+	
+	@PostMapping("/signup/admin")
+	public String handleAdminSignUp(
+			@Valid @ModelAttribute AdminRequest request,
+			BindingResult result,
+			RedirectAttributes redirectAttributes
+			) {
+		
+		if(result.hasErrors()) {
+			redirectAttributes.addFlashAttribute("error", result.getAllErrors().get(0).getDefaultMessage());
+			return "redirect:/signup/admin";
+		}
+		
+		try {
+			signUpUseCase.executeAsAdmin(request);
+			redirectAttributes.addFlashAttribute("success","Admin registered Successfully");
+			
+			return "redirect:/login";
+			
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("error",e.getMessage());
+			return "redirect:/signup/admin";
+		}
+		
 		
 	}
 	

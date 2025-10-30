@@ -5,6 +5,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 
@@ -12,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Aspect
 @Component
-
+@Order(1)
 @Slf4j
 public class LoggingAspect {
 
@@ -34,18 +35,20 @@ public class LoggingAspect {
 		
 		  String className = joinPoint.getTarget().getClass().getSimpleName();
 	        String methodName = joinPoint.getSignature().getName();
-	        Object[] args = joinPoint.getArgs();	        
-	        log.info("[ CONTROLLER ] - Entering {}.{}() ",
+	        Object[] args =    joinPoint.getArgs();	        
+	        log.info("[ CONTROLLER ] - Entering {}.{}() with args : {} ",
 	        		className,
-	        		methodName
+	        		methodName,
+	        		args
 	        		);
 		
 	        try {
 				
 	        	Object result = joinPoint.proceed();
-	        	log.info("[ CONTROLLER ] - Exiting {}.{}() ",
+	        	log.info("[ CONTROLLER ] - Exiting {}.{}() with results : {} ",
 	        			className,
-	        			methodName
+	        			methodName,
+	        			result
 	        			);
 	        	return result;
 	        	

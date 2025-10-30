@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" packagingData="false">
+    <contextName>WeatherApp</contextName>
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
+
+    <appender name="MASKED_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.weatherApp.logging.MaskingPatternLayout">
+                <!-- Order matters! Process key=value patterns BEFORE standalone emails -->
+                
+                <!-- 1. Password patterns: password=value, pwd=value, etc. -->
+                <maskPattern><![CDATA[(?i)((?:password|passwd|pwd)\s*[:=]\s*)([^\s,;)"'\]]+)]]></maskPattern>
+                
+                <!-- 2. Token patterns: token=value, apiKey=value, etc. (JWT compatible) -->
+				<maskPattern><![CDATA[(?i)((?:token|api[_-]?key|access[_-]?token|auth[_-]?token)\b\s*[:=]\s*)([A-Za-z0-9\-_\.]+)]]></maskPattern>
+                
+                <maskPattern><![CDATA[(?i)((?:secret[_-]?key|secret|private[_-]?key|encryption[_-]?key)\s*[:=]\s*)([^\s,;)"'\]]+)]]></maskPattern>
+                <!-- 3. Authorization/Bearer patterns -->
+                <maskPattern><![CDATA[(?i)((?:authorization|bearer)\s*[:=]\s*)([^\s,;)"'\]]+)]]></maskPattern>
+                
+                <!-- 4. Email in key=value format: email=user@domain.com or email=user@domain -->
+                <maskPattern><![CDATA[(?i)((?:email|e-mail|emailaddress)\s*[:=]\s*)([A-Za-z0-9][A-Za-z0-9._%+-]*@[A-Za-z0-9][A-Za-z0-9.-]+)]]></maskPattern>
+                
+                <!-- 5. Standalone email addresses (NOT preceded by = or :) -->
+                <maskPattern><![CDATA[(?<![=:,\w])([A-Za-z0-9][A-Za-z0-9._%+-]+@[A-Za-z0-9][A-Za-z0-9.-]+)]]></maskPattern>
+                
+                <pattern>%highlight(%-5level) [%d{yyyy-MM-dd HH:mm:ss}] [%thread] %logger{40} - %msg%n</pattern>
+            </layout>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="MASKED_CONSOLE" />
+    </appender>
+
+    <logger name="com.weatherApp" level="INFO" additivity="false">
+        <appender-ref ref="ASYNC_CONSOLE" />
+    </logger>
+
+    <logger name="org.springframework" level="WARN" />
+    <logger name="org.hibernate" level="WARN" />
+    <logger name="com.zaxxer.hikari" level="WARN" />
+    <logger name="org.apache" level="WARN" />
+
+    <root level="INFO">
+        <appender-ref ref="ASYNC_CONSOLE" />
+    </root>
+</configuration>

@@ -1,6 +1,7 @@
 package com.weatherApp.common.exceptionHandling;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 public class GlobalExceptionHandler {
 	
+	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	
 	private ResponseEntity<Map<String, Object>> buildErrorResponse(
 			String message,
@@ -36,7 +38,7 @@ public class GlobalExceptionHandler {
 		
 		Map<String, Object> errorResponse = new HashMap<>();
 		
-		errorResponse.put("timeStamp", LocalDateTime.now().toString());
+		errorResponse.put("timeStamp", LocalDateTime.now().format(formatter).toString());
 		
 		errorResponse.put("status", status.value());
 		errorResponse.put("error", status.getReasonPhrase());
@@ -47,6 +49,12 @@ public class GlobalExceptionHandler {
 		
 	}
 	
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<?> handleIllegalArguments(IllegalArgumentException ex){
+		
+		return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+		
+	}
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<?> handleValidationErrors(MethodArgumentNotValidException ex){
@@ -58,7 +66,7 @@ public class GlobalExceptionHandler {
 					fieldErrors.put(error.getField(), error.getDefaultMessage())
 				);
 		
-		errorResponse.put("timeStamp", LocalDateTime.now().toString());	
+		errorResponse.put("timeStamp", LocalDateTime.now().format(formatter).toString());	
 		errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
 		errorResponse.put("error", HttpStatus.BAD_REQUEST.getReasonPhrase());
 		errorResponse.put("message", "Validation Failed");
@@ -115,6 +123,7 @@ public class GlobalExceptionHandler {
 		
 	}
 	
+		
 	@ExceptionHandler({DuplicateUsernameException.class,DuplicateCityException.class})
 	public ResponseEntity<?> handleDuplicateResource(RuntimeException ex){
 		

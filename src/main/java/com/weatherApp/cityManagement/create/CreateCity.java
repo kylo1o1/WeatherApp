@@ -30,13 +30,12 @@ public class CreateCity {
 		String country = requestDTO.getCountry().trim();
 		String countryCode = requestDTO.getCountryCode().trim().toUpperCase();
 		
-		if(!apiClient.isCityValid(cityName,country)) {
-			log.error("Invlaid city");
+		if(!apiClient.isCityValid(cityName)) {
 			throw new InvalidCityException("City '" + cityName + "' is not a valid city");
 		}
 		
 		if( cityRepo.findByName(cityName).isPresent()) {
-			throw new DuplicateCityException("City " + cityName + " in Country " + country + "  already exists");
+			throw new DuplicateCityException("City '" + cityName + "' in Country " + country + "  already exists");
 		}
 		
 		
@@ -57,7 +56,7 @@ public class CreateCity {
 				savedCity.getCountry(), 
 				savedCity.getCountryCode(), 
 				
-				"City has been added");
+				"City '" + savedCity.getName() + "' has been added");
 		
 				
 		

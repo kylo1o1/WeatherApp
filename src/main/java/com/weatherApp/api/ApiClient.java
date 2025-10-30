@@ -32,7 +32,7 @@ public class ApiClient {
 	
 	
 	
-	public boolean isCityValid(String cityName,String country) {
+	public boolean isCityValid(String cityName) {
 		
 		String url = String.format(
 				"%s?key=%s&q=%s&aqi=no",

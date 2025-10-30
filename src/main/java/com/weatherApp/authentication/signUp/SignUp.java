@@ -1,14 +1,14 @@
 package com.weatherApp.authentication.signUp;
 
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.weatherApp.authentication.User;
 import com.weatherApp.authentication.UserRepo;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.DuplicateUsernameException;
-import com.weatherApp.common.exceptionHandling.CustomExceptions.InvalidPasswordException;
-import com.weatherApp.common.exceptionHandling.CustomExceptions.MissingDataException;
 import com.weatherApp.security.Role;
 
 import jakarta.validation.Valid;
@@ -23,8 +23,10 @@ public class SignUp {
 	
 	private final  PasswordEncoder passwordEncoder;
 	
+	@Value("${admin.secret.key}")
+	private String ADMIN_SECRET_KEY ;
 	
-	public Response execute(@Valid Request request) {
+	public Response execute(Request request) {
 		
 		
 		if(userRepo.findByUsername(request.getUsername()).isPresent()) {
@@ -53,31 +55,37 @@ public class SignUp {
 		
 	}
 	
-	public Response executeAsAdmin(Request request) {
+	public Response executeAsAdmin(AdminRequest request) {
 		
 		
-		if(userRepo.findByUsername(request.getUsername()).isPresent()) {
+		Request user = request.getUser();
+		
+		if(!ADMIN_SECRET_KEY.equals(request.getSecretKey().trim())) {
+			throw new BadCredentialsException("Invalid Secret Key");
+		}
+		
+		if(userRepo.findByUsername(user.getUsername()).isPresent()) {
 			
 			throw new DuplicateUsernameException("Username Already Exists");
 		}
 		
 		
-		User newUser = new User();
+		User admin = new User();
 		
-		newUser.setUsername(request.getUsername());
-		newUser.setEmail(request.getEmail());
+		admin.setUsername(user.getUsername());
+		admin.setEmail(user.getEmail());
 		
 		
-		String encryptedPassword = passwordEncoder.encode(request.getPassword());
+		String encryptedPassword = passwordEncoder.encode(user.getPassword());
 		
-		newUser.setPassword(encryptedPassword);
-		newUser.setRole(Role.ADMIN);
+		admin.setPassword(encryptedPassword);
+		admin.setRole(Role.ADMIN);
 		
-		userRepo.save(newUser);
+		userRepo.save(admin);
 		
 		return new Response(
 				"Admin User Registered Successfully",
-				newUser.getUsername()
+				admin.getUsername()
 				);
 		
 	}

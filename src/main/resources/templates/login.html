@@ -12,12 +12,10 @@
             <h1>🌤️ Login</h1>
             <p class="subtitle">Welcome back!</p>
             
-            <!-- Success Message -->
             <div th:if="${success}" class="alert alert-success">
                 <span th:text="${success}"></span>
             </div>
             
-            <!-- Error Message -->
             <div th:if="${error}" class="alert alert-error">
                 <span th:text="${error}"></span>
             </div>

@@ -20,12 +20,10 @@
     </nav>
     
     <div class="container">
-        <!-- Error Message -->
         <div th:if="${error}" class="alert alert-error">
             <span th:text="${error}"></span>
         </div>
         
-        <!-- Weather Form -->
         <div class="weather-form-card">
             <h2>Get Weather Information</h2>
             <form th:action="@{/weather}" method="post">
@@ -42,7 +40,6 @@
             </form>
         </div>
         
-        <!-- Weather Result -->
        <div th:if="${weather}" class="weather-card">
     <h2 th:text="${weather.cityName + ', ' + weather.country}"></h2>
     
