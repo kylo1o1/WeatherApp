@@ -1,6 +1,7 @@
 package com.weatherApp.web;
 
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -227,23 +228,18 @@ public class WebController {
 	 
 	 
 	 @GetMapping("/admin")
+	 @PreAuthorize("hasRole('ADMIN')")
 	 public String showAdmin(HttpSession session,Model model) {
 		 
 		 if(session.getAttribute("username") == null) {
 			 return "redirect:/login";
-		 }
-		 if(!"ADMIN".equals(session.getAttribute("role"))) {
-			 
-			 return "redirect:/dashboard";
 		 }
 		 
 		 model.addAttribute("username", session.getAttribute("username"));
 		 model.addAttribute("role",session.getAttribute("role"));
 		 
 		 try {
-			
-			 
-			 
+		 
 			 CityResponseDTO  cities = citiesUseCase.execute();
 			 model.addAttribute("cities", cities.getCities());
 			 
@@ -255,6 +251,7 @@ public class WebController {
 		 return "admin";
 	 }
 	 @PostMapping("/admin/add-city")
+	 @PreAuthorize("hasRole('ADMIN')")
 	 public String addCity(
 			 @Valid @ModelAttribute CreateCityRequestDTO request,
 			 BindingResult result,
@@ -264,9 +261,7 @@ public class WebController {
 			 
 			 ) {
 		 
-		 if(!session.getAttribute("role").equals("ADMIN")) {
-			 return "redirect:/login";
-		 }
+		
 		 if (result.hasErrors()) {
 		        redirectAttributes.addFlashAttribute("error", result.getAllErrors().get(0).getDefaultMessage());
 		        return "redirect:/signup";
@@ -293,14 +288,10 @@ public class WebController {
 	 }
 	 
 	 @PostMapping("admin/remove-city")
+	 @PreAuthorize("hasRole('ADMIN')")
 	 public String  removeCity(@RequestParam Long cityId,HttpSession session, RedirectAttributes redirectAttributes) {
 		 
-		 
-		 if(!"ADMIN".equals(session.getAttribute("role"))) {
-			 
-			 return "redirect:/dashboard";
-		 }
-		 
+		
 		 try {
 			
 			 removeCity.execute(cityId);

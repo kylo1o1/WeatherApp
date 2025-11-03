@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - Access Denied</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+            padding: 20px;
+        }
+        
+        .error-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .error-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .error-code {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #f44336;
+            margin-bottom: 0.5rem;
+        }
+        
+        .error-title {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .error-message {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .error-details {
+            background: #fff3f3;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #c62828;
+            text-align: left;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .warning-box {
+            background: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+        
+        .warning-box p {
+            margin: 0;
+            color: #666;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .info-list {
+            text-align: left;
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+        
+        .info-list li {
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-card">
+            <!-- Error Icon -->
+            <div class="error-icon">🚫</div>
+            
+            <!-- Error Code -->
+            <div class="error-code">403</div>
+            
+            <!-- Error Title -->
+            <h1 class="error-title">Access Denied</h1>
+            
+            <!-- Error Message -->
+            <p class="error-message">
+                You don't have permission to access this resource.
+            </p>
+            
+            <!-- Error Details (if available) -->
+            <div th:if="${error}" class="error-details">
+                <strong>Details:</strong><br>
+                <span th:text="${error}">Error details</span>
+            </div>
+            
+            <!-- Warning Box -->
+            <div class="warning-box">
+                <p>
+                    <strong>⚠️ Authorization Required</strong><br>
+                    This page requires elevated privileges that your account doesn't have.
+                </p>
+            </div>
+            
+            <!-- Additional Information -->
+            <div class="info-box">
+                <p><strong>Why am I seeing this?</strong></p>
+                <ul class="info-list">
+                    <li>You're logged in as a <strong>USER</strong>, but this page requires <strong>ADMIN</strong> access</li>
+                    <li>The resource you're trying to access is restricted</li>
+                    <li>Your account doesn't have the necessary permissions</li>
+                </ul>
+            </div>
+            
+            <!-- Current User Info (if available) -->
+            <div th:if="${#httpSession != null && #httpSession.getAttribute('username') != null}" 
+                 style="background: #e3f2fd; padding: 1rem; border-radius: 8px; margin: 1.5rem 0;">
+                <p style="margin: 0; color: #1976d2;">
+                    <strong>Logged in as:</strong> 
+                    <span th:text="${#httpSession.getAttribute('username')}">username</span>
+                    (<span th:text="${#httpSession.getAttribute('role')}">role</span>)
+                </p>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="error-actions">
+                <a th:href="@{/dashboard}" class="btn btn-primary">
+                    Go to Dashboard
+                </a>
+                <a th:href="@{/logout}" class="btn btn-secondary">
+                    Logout
+                </a>
+                <a th:href="@{/}" class="btn btn-secondary">
+                    Go Home
+                </a>
+            </div>
+            
+            <!-- Help Text -->
+            <p style="margin-top: 2rem; color: #999; font-size: 0.9rem;">
+                Need admin access? Contact your system administrator.
+            </p>
+            
+            <!-- Timestamp -->
+            <div style="margin-top: 1rem; color: #999; font-size: 0.85rem;">
+                <span th:text="${#temporals.format(#temporals.createNow(), 'dd MMM yyyy HH:mm:ss')}">
+                    Timestamp
+                </span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

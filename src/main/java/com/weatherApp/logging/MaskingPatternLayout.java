@@ -48,7 +48,6 @@ public class MaskingPatternLayout extends PatternLayout {
         
         try {
             String result = message;
-            // Apply each mask rule sequentially
             for (MaskRule rule : maskRules) {
                 result = applyMaskRule(result, rule);
             }
@@ -77,50 +76,40 @@ public class MaskingPatternLayout extends PatternLayout {
         String fullMatch = matcher.group(0);
         int groupCount = matcher.groupCount();
         
-        // Pattern 1: Key=Value with email (2 groups where key suggests email)
         if (groupCount == 2) {
             String prefix = matcher.group(1);
             String value = matcher.group(2);
             
-            // Skip masking if value is "null"
             if (value != null && value.equalsIgnoreCase("null")) {
-                return null; // Don't replace
+                return null; 
             }
             
             if (value != null) {
-                // Check if this is an email field by looking at the prefix
                 if (prefix.toLowerCase().contains("email") || prefix.toLowerCase().contains("e-mail")) {
-                    // Apply email masking
                     return prefix + maskEmail(value);
                 }
-                // Otherwise, full redaction for passwords, tokens, secrets, etc.
                 return prefix + rule.getMaskString();
             }
         }
         
-        // Pattern 2: Standalone email pattern (1 group - the email itself)
         if (groupCount == 1 && fullMatch.contains("@")) {
             String email = matcher.group(1);
             if (email != null && !email.equalsIgnoreCase("null")) {
                 return maskEmail(email);
             }
-            return null; // Don't replace
+            return null;
         }
         
-        // Pattern 3: Single group (just a prefix or just a value)
         if (groupCount == 1) {
             String captured = matcher.group(1);
             
-            // Skip if it's "null"
             if (captured != null && captured.equalsIgnoreCase("null")) {
-                return null; // Don't replace
+                return null; 
             }
             
-            // Return prefix + mask
             return captured + rule.getMaskString();
         }
         
-        // No groups - mask entire match
         return rule.getMaskString();
     }
     

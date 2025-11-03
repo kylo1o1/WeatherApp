@@ -1,14 +1,17 @@
 package com.weatherApp.common.exceptionHandling;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,6 +25,7 @@ import com.weatherApp.common.exceptionHandling.CustomExceptions.InvalidPasswordE
 import com.weatherApp.common.exceptionHandling.CustomExceptions.MissingDataException;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.WeatherApiException;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @ControllerAdvice
@@ -54,6 +58,14 @@ public class GlobalExceptionHandler {
 		
 		return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
 		
+	}
+	
+	
+	@ExceptionHandler(AuthorizationDeniedException.class)
+	public ResponseEntity<?> handleAuthDeniedError(AuthorizationDeniedException ex, HttpServletResponse response ) throws IOException {
+		
+//		response.sendRedirect("/error/403");
+		return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
 	}
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
