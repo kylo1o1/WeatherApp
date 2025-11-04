@@ -12,10 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.weatherApp.common.exceptionHandling.CustomExceptions.CityNotFoundException;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.DuplicateCityException;
@@ -23,51 +26,68 @@ import com.weatherApp.common.exceptionHandling.CustomExceptions.DuplicateUsernam
 import com.weatherApp.common.exceptionHandling.CustomExceptions.InvalidCityException;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.InvalidPasswordException;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.MissingDataException;
+import com.weatherApp.common.exceptionHandling.CustomExceptions.UnauthorizedExcepiton;
 import com.weatherApp.common.exceptionHandling.CustomExceptions.WeatherApiException;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @ControllerAdvice
 @Slf4j
+@RequiredArgsConstructor
 
 public class GlobalExceptionHandler {
 	
 	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	
-	private ResponseEntity<Map<String, Object>> buildErrorResponse(
-			String message,
-			HttpStatus status
-			){
+	private final ErrorResponseBuilder builder;
+	
+	
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public Object handleMethodNotSupported(HttpRequestMethodNotSupportedException ex,
+			HttpServletRequest request, HttpServletResponse response ) {
 		
-		Map<String, Object> errorResponse = new HashMap<>();
-		
-		errorResponse.put("timeStamp", LocalDateTime.now().format(formatter).toString());
-		
-		errorResponse.put("status", status.value());
-		errorResponse.put("error", status.getReasonPhrase());
-		errorResponse.put("message", message);
-		
-		return new ResponseEntity<>(errorResponse,status);
-		
-		
+	    String uri = request.getRequestURI();
+	    String message = "HTTP method not supported for this endpoint";
+	    
+	    if(uri.contains("/api")) {
+	    	return builder.buildErrorResponse(message, HttpStatus.METHOD_NOT_ALLOWED);
+	    }else {
+	        request.setAttribute("errorMessage", message);
+	        return "error/500"; 
+	    }
 	}
+	
 	
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<?> handleIllegalArguments(IllegalArgumentException ex){
 		
-		return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+		return builder.buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
 		
 	}
 	
+	
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<?> handleNoResourceFound(NoResourceFoundException ex, HttpServletResponse response, HttpServletRequest request) throws IOException, ServletException {
+        
+        String uri = request.getRequestURI();
+
+		request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, HttpServletResponse.SC_NOT_FOUND);
+        request.setAttribute(RequestDispatcher.ERROR_MESSAGE, "No Resource Found");
+        request.setAttribute(RequestDispatcher.ERROR_REQUEST_URI, uri);
+        request.getRequestDispatcher("/error").forward(request, response);
+		return builder.buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 	
 	@ExceptionHandler(AuthorizationDeniedException.class)
-	public ResponseEntity<?> handleAuthDeniedError(AuthorizationDeniedException ex, HttpServletResponse response ) throws IOException {
-		
-//		response.sendRedirect("/error/403");
-		return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
+	public ResponseEntity<Map<String, Object>> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+	    return builder.buildErrorResponse("You don't have the authority to access this resource", HttpStatus.FORBIDDEN);
 	}
-	
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<?> handleValidationErrors(MethodArgumentNotValidException ex){
 		
@@ -94,7 +114,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(InvalidCityException.class)
 	public ResponseEntity<?> handleInvalidCityErros(InvalidCityException ex){
 		
-		return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+		return builder.buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(HttpClientErrorException.class)
@@ -112,26 +132,26 @@ public class GlobalExceptionHandler {
 			 message = "Weather service error: " + ex.getStatusText();
 		}
 		
-		return buildErrorResponse(message, HttpStatus.BAD_GATEWAY);
+		return builder.buildErrorResponse(message, HttpStatus.BAD_GATEWAY);
 	}
 	@ExceptionHandler(WeatherApiException.class)
 	public ResponseEntity<?> handleWeatherApiError(WeatherApiException ex){
 		
-		return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return builder.buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		
 		
 	}
 	
 	@ExceptionHandler(CityNotFoundException.class)
 	public ResponseEntity<?> handleCityNotFound(CityNotFoundException ex){
-		return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+		return builder.buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
 		
 	}
 	
 	@ExceptionHandler(MissingDataException.class)
 	public ResponseEntity<?> handleMissingData(MissingDataException ex){
 		
-		return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+		return builder.buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
 		
 	}
 	
@@ -139,22 +159,22 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler({DuplicateUsernameException.class,DuplicateCityException.class})
 	public ResponseEntity<?> handleDuplicateResource(RuntimeException ex){
 		
-		return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+		return builder.buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
 	}
 	
 	
-	@ExceptionHandler(AccessDeniedException.class)
-	public ResponseEntity<?> handleAccessDenials(AccessDeniedException ex){
-		
-		return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
-		
-		
-	}
+//	@ExceptionHandler(AccessDeniedException.class)
+//	public ResponseEntity<?> handleAccessDenials(AccessDeniedException ex){
+//		
+//		return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
+//		
+//		
+//	}
 	
 	@ExceptionHandler(BadCredentialsException.class)
 	public ResponseEntity<?> handleBadCredentials(BadCredentialsException ex){
 		
-		return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+		return builder.buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
 		
 		
 	}
@@ -162,13 +182,14 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(InvalidPasswordException.class)
 	public ResponseEntity<?> handleInvalidPassword(RuntimeException ex){
 		
-		return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+		return builder.buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
 	}
+	
 	
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> handleGenericException (Exception ex){
 		
-		return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		return builder.buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
 }

@@ -101,5 +101,19 @@ public class CustomExceptions {
 			super(message);
 		}
 	}
+
+	public static class UnauthorizedExcepiton extends RuntimeException{
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public UnauthorizedExcepiton(String message) {
+			super(message);
+			// TODO Auto-generated constructor stub
+		}
+	}
 }
+
 	

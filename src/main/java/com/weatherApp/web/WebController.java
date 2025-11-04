@@ -228,7 +228,6 @@ public class WebController {
 	 
 	 
 	 @GetMapping("/admin")
-	 @PreAuthorize("hasRole('ADMIN')")
 	 public String showAdmin(HttpSession session,Model model) {
 		 
 		 if(session.getAttribute("username") == null) {
@@ -250,6 +249,8 @@ public class WebController {
 		 
 		 return "admin";
 	 }
+	 
+	 
 	 @PostMapping("/admin/add-city")
 	 @PreAuthorize("hasRole('ADMIN')")
 	 public String addCity(
